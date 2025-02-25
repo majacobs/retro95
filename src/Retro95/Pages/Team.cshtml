@@ -1,0 +1,59 @@
+@page "/team/{teamId:guid}"
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Retro95.Models
+@model Retro95.Pages.TeamModel
+
+@{
+    ViewData["Title"] = Model.Team.Name;
+}
+
+<div class="window">
+    <h1>@Model.Team.Name</h1>
+    <div class="inset">
+        <span class="folder">Sessions</span>
+        <ul class="tree">
+            @foreach (var session in Model.Sessions)
+            {
+                <li>
+                    <a asp-page="/Session" asp-route-sessionId="@session.Session.Id" class="file">@session.Session.Name</a>
+                    (@session.CommentCount @(session.CommentCount == 1 ? "comment" : "comments"))
+                </li>
+            }
+        </ul>
+    </div>
+    <div style="display: grid; grid-template-columns: auto auto; column-gap: 0.5rem; max-width: 30rem;">
+        <fieldset>
+            <legend>Create Session</legend>
+            <form method="post" class="grid-labels">
+                <label for="new-session-name">Name</label>
+                <div>
+                    <input id="new-session-name" type="text" name="name" required="required" pattern=".*\S.*" maxlength="128"/>
+                </div>
+                <div><!-- for alignment --></div>
+                <div>
+                    <button type="submit" asp-page-handler="CreateSession" class="wide">Create</button>
+                </div>
+            </form>
+        </fieldset>
+        <fieldset>
+            <legend>Default Columns</legend>
+            <form method="post" class="grid-labels">
+                <label for="default-columns">Columns<br/>(one per line)</label>
+                <textarea id="default-columns" name="columns" required="required" style="width: 20rem; height: 5rem;">@string.Join("\n", Model.Team.DefaultTypes.Select(t => t.Name))</textarea>
+                <div><!-- for alignment --></div>
+                <div>
+                    <button type="submit" asp-page-handler="UpdateDefaults" class="wide">Update</button>
+                </div>
+            </form>
+        </fieldset>
+    </div>
+</div>
+
+@section TaskBar
+{
+    @await Html.PartialAsync("_TaskBar", new TaskBar
+    {
+        ApplicationName = Model.Team.Name,
+        Teams = Model.Teams,
+    })
+}

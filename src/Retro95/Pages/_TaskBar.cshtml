@@ -1,0 +1,35 @@
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model Retro95.Models.TaskBar
+
+<ul id="start-menu">
+    <li>
+        Start
+        <ul>
+            @if (Model.SessionId is not null)
+            {
+                <li><a asp-page="/Session" asp-page-handler="Csv" asp-route-sessionId="@Model.SessionId" class="icon icon-printer">Download CSV</a></li>
+            }
+            <li><a href="https://github.com/majacobs/retro95" class="icon icon-installer" rel="noreferrer">Source Code</a></li>
+            <li>
+                <span class="icon icon-network">Teams</span>
+                <ul>
+                    @if (Model.Teams.Count > 0)
+                    {
+                        @foreach (var team in Model.Teams.OrderBy(t => t.Name))
+                        {
+                            <li><a asp-page="/Team" asp-route-teamId="@team.Id" class="icon icon-folder">@team.Name</a></li>
+                        }
+                    }
+                    else
+                    {
+                        <li class="inactive"><span class="icon">None</span></li>
+                    }
+                    <li class="divider"></li>
+                    <li><a asp-page="/Index" class="icon icon-edit">Create New</a></li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+</ul>
+<div class="task-bar-button active">@Model.ApplicationName</div>
+<div id="clock">@DateTime.UtcNow.ToString("h:mm tt")</div>

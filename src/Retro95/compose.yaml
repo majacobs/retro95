@@ -1,0 +1,13 @@
+﻿services:
+  retro95:
+    image: retro95
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__Retro: Data Source=/data/retro95.sqlite
+    volumes:
+      - ./data:/data
+    ports:
+      - "8080:8080"

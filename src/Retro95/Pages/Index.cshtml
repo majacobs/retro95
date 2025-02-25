@@ -1,0 +1,34 @@
+﻿@page
+@using Retro95.Models
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="window">
+    <h1>Retro95</h1>
+    <div style="display: grid; grid-template-columns: auto auto; column-gap: 0.5rem; max-width: 30rem;">
+        <fieldset>
+            <legend>Create Team</legend>
+            <form method="post" class="grid-labels">
+                <label for="new-team-name">Name</label>
+                <div>
+                    <input id="new-team-name" type="text" name="name" required="required" pattern=".*\S.*" maxlength="128"/>
+                </div>
+                <div><!-- for alignment --></div>
+                <div>
+                    <button type="submit" asp-page-handler="CreateTeam" class="wide">Create</button>
+                </div>
+            </form>
+        </fieldset>
+    </div>
+</div>
+
+@section TaskBar
+{
+    @await Html.PartialAsync("_TaskBar", new TaskBar
+    {
+        ApplicationName = "Retro95",
+        Teams = Model.Teams,
+    })
+}

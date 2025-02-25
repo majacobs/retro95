@@ -1,0 +1,108 @@
+@page "/session/{sessionId:guid}"
+@model Retro95.Pages.SessionModel
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Models.Api
+@using Retro95.Models
+
+@{
+    ViewData["Title"] = Model.Session.Name;
+}
+
+<div class="window">
+    <h1>@Model.Session.Name</h1>
+    Created: <time datetime="@Model.Session.CreatedAt.ToString("u")">@Model.Session.CreatedAt.ToString("yyyy-MM-dd")</time>
+    <div style="display: grid; grid-template-columns: auto auto; column-gap: 0.5rem; max-width: 30rem;">
+        <fieldset>
+            <legend>Rename</legend>
+            <form method="post" class="grid-labels">
+                <label for="new-name">New name</label>
+                <input type="text" id="new-name" name="name" required="required" pattern=".*\S.*" maxlength="128"/>
+                <div><!-- for alignment --></div>
+                <div>
+                    <button type="submit" asp-page-handler="Rename" class="wide">Save</button>
+                </div>
+            </form>
+        </fieldset>
+        <fieldset>
+            <legend>Add Column</legend>
+            <form method="post" class="grid-labels">
+                <label for="new-column">Name</label>
+                <input type="text" id="new-column" name="name" required="required" pattern=".*\S.*" maxlength="128"/>
+                <div><!-- for alignment --></div>
+                <div>
+                    <button type="submit" asp-page-handler="AddColumn" class="wide">Add</button>
+                </div>
+            </form>
+        </fieldset>
+    </div>
+</div>
+<div class="board">
+    @foreach(var (type, index) in Model.Session.Types.Select((t, i) => (t, i)))
+    {
+        <div class="window column">
+            <h1>
+                @type.Name
+                <label for="display-delete-@index"><span class="faux-button title-bar-button x-button"></span></label>
+            </h1>
+            @foreach(var comment in Model.Session.Comments.Where(c => c.Type == type.Name).OrderBy(c => c.CreatedAt))
+            {
+                <div class="comment">
+                    @if (comment.UserId == Model.User?.Id)
+                    {
+                        <div class="tools">
+                            <form method="post">
+                                <button type="submit" asp-page-handler="RemoveComment" class="recycle"></button>
+                                <input type="hidden" name="commentId" value="@comment.Id"/>
+                            </form>
+                        </div>
+                    }
+                    <div>@Html.Raw(string.Join("<br/>", comment.Text.Split(Environment.NewLine).Select(Html.Encode)))</div>
+                    <span class="author">@comment.User.Name</span>
+                </div>
+            }
+            <hr>
+            <div>
+                <form method="post" class="grid-labels">
+                    <label for="add-comment-@index-name">Name</label>
+                    <div>
+                        <input id="add-comment-@index-name" type="text" required="required" name="@nameof(Comment.AuthorName)" value="@Model.User?.Name" maxlength="128"/>
+                    </div>
+                    <label for="add-comment-@index-text">Comment</label>
+                    <textarea id="add-comment-@index-text" name="@nameof(Comment.Text)" required="required" style="height: 5rem;" maxlength="1024"></textarea>
+                    <div><!-- for alignment --></div>
+                    <div>
+                        <button type="submit" asp-page-handler="AddComment" class="wide">Add</button>
+                    </div>
+                    <input type="hidden" name="@nameof(Comment.SessionId)" value="@Model.Session.Id"/>
+                    <input type="hidden" name="@nameof(Comment.Type)" value="@type.Name"/>
+                </form>
+            </div>
+        </div>
+    }
+</div>
+
+@foreach (var (type, index) in Model.Session.Types.Select((t, i) => (t, i)))
+{
+    <input type="checkbox" id="display-delete-@index" class="modal-display"/>
+    <div class="modal">
+        <div class="window">
+            <h1>Delete Column</h1>
+            Are you sure you want to delete the <strong>@type.Name</strong> column?
+            <form method="post" style="text-align: center; margin-top: 1rem;">
+                <button type="submit" asp-page-handler="RemoveColumn" class="wide">Delete</button>
+                <label for="display-delete-@index"><span class="faux-button wide">Cancel</span></label>
+                <input type="hidden" name="name" value="@type.Name"/>
+            </form>
+        </div>
+    </div>
+}
+
+@section TaskBar
+{
+    @await Html.PartialAsync("_TaskBar", new TaskBar
+    {
+        ApplicationName = Model.Session.Name ?? "<unnamed>",
+        Teams = Model.Teams,
+        SessionId = Model.Session.Id,
+    })
+}

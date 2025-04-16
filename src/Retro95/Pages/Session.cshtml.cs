@@ -172,4 +172,20 @@ public class SessionModel(RetroContext context) : BasePageModel(context)
         
         return RedirectToPage("Session", new { sessionId });
     }
+
+    public async Task<IActionResult> OnGetNewComments(Guid sessionId, DateTime lastUpdate)
+    {
+        var comments = await _context.Comments
+            .Include(c => c.User)
+            .Where(c => c.SessionId == sessionId && c.CreatedAt > lastUpdate)
+            .OrderBy(c => c.CreatedAt)
+            .ToListAsync();
+
+        return new JsonResult(comments.Select(c => new
+        {
+            AuthorName = c.User.Name,
+            c.Text,
+            c.Type,
+        }));
+    }
 }

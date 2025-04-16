@@ -8,6 +8,48 @@
     ViewData["Title"] = Model.Session.Name;
 }
 
+@section Scripts
+{
+<script type="text/javascript">
+    "use strict";
+    window.addEventListener("load", function() {
+        let lastCheck = new Date();
+        setInterval(function() {
+            showNewComments(lastCheck);
+            lastCheck = new Date();
+        }, 10 * 1000);
+    });
+    
+    function showNewComments(lastCheck) {
+        fetch(`@Url.Page("Session", "NewComments")&lastUpdate=${lastCheck.toISOString()}`)
+            .then(response => response.json())
+            .then(data => {
+                for (let comment of data) {
+                    const cleanType = comment.type.replaceAll("\\", "\\\\").replaceAll("\"", "\\\"");
+                    const separator = document.querySelector(`div[data-comment-type="${cleanType}"] > hr`);
+                    separator.parentNode.insertBefore(renderComment(comment), separator);
+                }
+            });
+    }
+    
+    function renderComment(data) {
+        const container = document.createElement("div");
+        container.classList.add("comment");
+        
+        const textHolder = document.createElement("div");
+        textHolder.textContent = data.text;
+        
+        const byLine = document.createElement("span");
+        byLine.classList.add("author");
+        byLine.textContent = data.authorName;
+        
+        container.appendChild(textHolder);
+        container.appendChild(byLine);
+        return container;
+    }
+</script>
+}
+
 <div class="window">
     <h1>@Model.Session.Name</h1>
     Created: <time datetime="@Model.Session.CreatedAt.ToString("u")">@Model.Session.CreatedAt.ToString("yyyy-MM-dd")</time>
@@ -39,7 +81,7 @@
 <div class="board">
     @foreach(var (type, index) in Model.Session.Types.Select((t, i) => (t, i)))
     {
-        <div class="window column">
+        <div class="window column" data-comment-type="@type.Name">
             <h1>
                 @type.Name
                 <label for="display-delete-@index"><span class="faux-button title-bar-button x-button"></span></label>

@@ -73,7 +73,7 @@ public class TeamModel(RetroContext context) : BasePageModel(context)
         }
 
         var types = ParseCommentTypes(columns);
-        if (types.Length == 0)
+        if (types.Count == 0)
         {
             return BadRequest();
         }
@@ -84,13 +84,13 @@ public class TeamModel(RetroContext context) : BasePageModel(context)
         return RedirectToPage("Team", new { teamId = team.Id });
     }
 
-    private static CommentType[] ParseCommentTypes(string str) =>
+    private static List<CommentType> ParseCommentTypes(string str) =>
         str
             .Split("\n")
             .Select(s => s.Trim())
             .Where(s => !string.IsNullOrWhiteSpace(s))
             .Select(s => new CommentType { Name = s })
-            .ToArray();
+            .ToList();
 
     public class SessionInfo
     {

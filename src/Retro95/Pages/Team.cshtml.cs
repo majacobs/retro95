@@ -24,16 +24,17 @@ public class TeamModel(RetroContext context) : BasePageModel(context)
         }
         
         Team = team;
-        Sessions = await _context.Sessions.Where(s => s.TeamId == teamId)
+        var sessions = await _context.Sessions.Where(s => s.TeamId == teamId)
             .Select(s => new SessionInfo
             {
                 Session = s,
                 CommentCount = s.Comments.Count,
             })
-            .OrderByDescending(x => x.Session.CreatedAt)
             .AsNoTracking()
-            .ToArrayAsync();
+            .ToListAsync();
 
+        Sessions = sessions.OrderByDescending(s => s.Session.Name, new NaturalSort()).ToArray();
+        
         await PopulateStartMenu();
         await RecordTeamMembership(teamId);
         return Page();

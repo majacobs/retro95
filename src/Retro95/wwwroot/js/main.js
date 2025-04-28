@@ -1,7 +1,8 @@
-// 8EGC77F8feUeiOu07LxwWOBa2tfPpasO
 import Giphy from './giphy/index.js'
+import generateUUID from './uuid.js';
 
 window.Giphy = Giphy
+window.generateUUID = generateUUID
 
 window.addEventListener("load", function () {
   updateClock();

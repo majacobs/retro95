@@ -24,11 +24,9 @@ function Giphy() {
   })
 
   this.doSearch = async (q, options) => {
-    const response = await api.search(mergeWithDefaults({ ...options, q }))
+    const images = await api.search(mergeWithDefaults({ ...options, q }))
 
-    console.log(response)
-
-    return
+    return images
   }
 }
 

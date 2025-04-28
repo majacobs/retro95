@@ -1,1 +1,1 @@
-export { default } from './setup.js'
+export { default, giphyCommand } from './giphy.js'

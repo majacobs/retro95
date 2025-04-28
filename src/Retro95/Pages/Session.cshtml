@@ -10,8 +10,10 @@
 
 @section Scripts
 {
-    <script type="text/javascript">
+    <script type="module">
+        import { giphyCommand } from '/js/giphy/index.js'
         "use strict";
+
         window.addEventListener("load", function () {
             let lastCheck = new Date();
             setInterval(function () {
@@ -60,8 +62,17 @@
             const text = document.querySelector(`#add-comment-${i}-text`)?.value || ''
 
             parseAction(text)
+        }
+
         function parseAction(text) {
             const { command, query } = /\/(?<command>\w*)\s(?<query>(?:.*[\r\n]*)*)/gm.exec(text)?.groups || {}
+
+            switch (command) {
+                case giphyCommand:
+                    break;
+                default:
+                    break;
+            }
         }
     </script>
 }

@@ -1,3 +1,8 @@
+// 8EGC77F8feUeiOu07LxwWOBa2tfPpasO
+import Giphy from './giphy/index.js'
+
+window.Giphy = Giphy
+
 window.addEventListener("load", function () {
   updateClock();
   startClock();

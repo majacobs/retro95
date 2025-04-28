@@ -59,6 +59,9 @@
             const i = target.getAttribute('data-comment-index')
             const text = document.querySelector(`#add-comment-${i}-text`)?.value || ''
 
+            parseAction(text)
+        function parseAction(text) {
+            const { command, query } = /\/(?<command>\w*)\s(?<query>(?:.*[\r\n]*)*)/gm.exec(text)?.groups || {}
         }
     </script>
 }

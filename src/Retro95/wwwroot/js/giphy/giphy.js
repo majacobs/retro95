@@ -1,6 +1,5 @@
 import api from './api.js'
 
-const api_key = '8EGC77F8feUeiOu07LxwWOBa2tfPpasO'
 const q = ''
 const limit = 5
 const offset = 0
@@ -11,7 +10,6 @@ const command = 'giphy'
 // constructor
 function Giphy() {
   const defaults = {
-    api_key,
     q,
     limit,
     offset,

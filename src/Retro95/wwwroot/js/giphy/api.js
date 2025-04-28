@@ -1,7 +1,9 @@
+const api_key = '8EGC77F8feUeiOu07LxwWOBa2tfPpasO'
 const hostUrl = 'https://api.giphy.com/v1/gifs/search'
 
 const search = async (options) => {
-  const { data } = await fetch(`${hostUrl}${URLSearchParams(options).toString()}`)
+  const response = await fetch(`${hostUrl}?${new URLSearchParams({ ...options, api_key }).toString()}`)
+  const { data } = await response.json()
 
   return data.map(({ images: { original, fixed_height_downsampled: wide, fixed_width_downsampled: tall } }) => ({
     original: original.webp,

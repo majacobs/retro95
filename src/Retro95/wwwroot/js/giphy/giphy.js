@@ -17,6 +17,7 @@ function Giphy(downsample = 0) {
   let useDownsampled = downsample
   let id = ''
   let query = ''
+  let caption = ''
 
   const getImage = () => {
     const { original, downsampled } = images[currentIndex]
@@ -39,7 +40,7 @@ function Giphy(downsample = 0) {
   const next = async () => {
     currentIndex++
 
-    if (currentIndex >= images.length && currentIndex <= total) await this.doSearch(query, mergeWithDefaults({ offset: images.length }))
+    if (currentIndex >= images.length && currentIndex <= total) await this.doSearch(query, caption, mergeWithDefaults({ offset: images.length }))
 
     rerender()
   }
@@ -59,7 +60,8 @@ function Giphy(downsample = 0) {
   const submit = () => {
     const column = document.getElementById(id).parentElement.parentElement
 
-    column.querySelector('textarea').value = JSON.stringify({ image: getImage(), title: getTitle() })
+    column.querySelector('textarea').value = JSON.stringify({ caption, image: getImage(), title: getTitle() })
+    console.log(column.querySelector('textarea').value, 'SAVING')
     column.querySelector('input[id$="-render-as"]').value = 'Giphy'
 
     // Remove comments are also submit buttons, we want the very last one which is our post comment
@@ -67,8 +69,10 @@ function Giphy(downsample = 0) {
     nodes[nodes.length - 1].click()
   }
 
-  this.doSearch = async (q, options) => {
+  this.doSearch = async (q, c, options) => {
     query = q
+    caption = c
+    console.log('Got a caption!', caption)
     const { images: response, total_count } = await api.search(mergeWithDefaults({ ...options, q }))
     images = images.concat(response)
     total = total_count

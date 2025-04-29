@@ -88,14 +88,15 @@
         }
 
         function parseAction(text) {
-            const { command, query } = /\/(?<command>\w*)\s(?<query>(?:.*[\r\n]*)*)/gm.exec(text)?.groups || {}
+            const pattern = /(?<caption>(\w|\s|[!-\/:-@@[-`{-~])*)(?:.*[\r\n]*)\/(?<command>\w*)\s(?<query>(?:.*[\r\n]*)*)/gm
+            const { caption = '', command, query } = pattern.exec(text)?.groups || {}
 
             switch (command) {
                 case giphyCommand:
                     return async () => {
                         const giphy = new Giphy(parseInt(localStorage.getItem('low-res-mode')))
 
-                        await giphy.doSearch(query)
+                        await giphy.doSearch(query, caption)
 
                         return createPendingComment(giphy)
                     }

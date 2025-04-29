@@ -5,6 +5,7 @@
 
 @{
   var giphy = JsonSerializer.Deserialize<JsonObject>(Model.Text);
+  var giphyCaption = (giphy?["caption"] ?? string.Empty).GetValue<string>();
   var giphyImage = (giphy?["image"] ?? string.Empty).GetValue<string>();
   var giphyTitle = (giphy?["title"] ?? string.Empty).GetValue<string>();
 }
@@ -20,6 +21,17 @@
     </div>
   }
   <div>
+    @if (giphyCaption != string.Empty)
+    {
+      <div class="giphy-caption">  
+        <span class="giphy-caption-shadow">      
+          <span class="giphy-caption-text">
+            @giphyCaption
+          </span>
+        </span>
+        <img class="giphy-clippy" src="~/images/microsoft-clippy.svg" alt="A cartoon character named Clippy who is a paperclip with eyes." />
+      </div>
+    }
     <img src="@giphyImage" alt="@giphyTitle" />
   </div>
   <span class="author">@Model.User?.Name</span>

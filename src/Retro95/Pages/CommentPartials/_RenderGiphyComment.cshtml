@@ -1,0 +1,18 @@
+@model Models.Db.Comment
+@using Retro95.Models
+
+<div class="comment">
+  @if (@Model.UserId == Model.User?.Id)
+  {
+    <div class="tools">
+      <form method="post">
+        <button type="submit" asp-page-handler="RemoveComment" class="recycle"></button>
+        <input type="hidden" name="commentId" value="@Model.Id" />
+      </form>
+    </div>
+  }
+  <div>
+    @Html.Raw(string.Join("<br/>", Model.Text.Split(Environment.NewLine).Select(Html.Encode)))
+  </div>
+  <span class="author">@Model.User?.Name</span>
+</div>

@@ -3,7 +3,6 @@
 @using Microsoft.AspNetCore.Mvc.TagHelpers
 @using Models.Api
 @using Retro95.Models
-@using System.Web
 
 @{
     ViewData["Title"] = Model.Session.Name;
@@ -156,7 +155,7 @@
             <legend>Add Column</legend>
             <form method="post" class="grid-labels">
                 <label for="new-column">Name</label>
-                <input type="text" id="new-column" name="name" required="required" pattern=".*\S.*" maxlength="128" />
+                <input type="text" id="n`ew-column" name="name" required="required" pattern=".*\S.*" maxlength="128" />
                 <div><!-- for alignment --></div>
                 <div>
                     <button type="submit" asp-page-handler="AddColumn" class="wide">Add</button>
@@ -182,21 +181,14 @@
             </h1>
             @foreach (var comment in Model.Session.Comments.Where(c => c.Type == type.Name).OrderBy(c => c.CreatedAt))
             {
-                <div class="comment">
-                    @if (comment.UserId == Model.User?.Id)
-                    {
-                        <div class="tools">
-                            <form method="post">
-                                <button type="submit" asp-page-handler="RemoveComment" class="recycle"></button>
-                                <input type="hidden" name="commentId" value="@comment.Id" />
-                            </form>
-                        </div>
-                    }
-                    <div>
-                        @Html.Raw(HttpUtility.HtmlDecode(string.Join("<br/>",comment.Text.Split(Environment.NewLine).Select(Html.Encode))))
-                    </div>
-                    <span class="author">@comment.User.Name</span>
-                </div>
+                var partial = "~/Pages/CommentPartials/_RenderTextComment.cshtml";
+
+                @if (comment.RenderAs == "Giphy")
+                {
+                    partial = "~/Pages/CommentPartials/_RenderGiphyComment.cshtml";
+                }
+
+                @await Html.PartialAsync(partial, comment)
             }
             <section id="pending-comments-@index"></section>
             <hr>

@@ -1,8 +1,8 @@
 const api_key = '8EGC77F8feUeiOu07LxwWOBa2tfPpasO'
-const hostUrl = 'https://api.giphy.com/v1/gifs/search'
+const baseUri = 'https://api.giphy.com/v1/gifs/search'
 
 const search = async (options) => {
-  const response = await fetch(`${hostUrl}?${new URLSearchParams({ ...options, api_key }).toString()}`)
+  const response = await fetch(`${baseUri}?${new URLSearchParams({ ...options, api_key }).toString()}`)
   const { data, pagination: { total_count } } = await response.json()
 
   return {

@@ -31,7 +31,9 @@
                 })
 
             const lowResMode = document.getElementById('low-res-mode')
+
             if (localStorage.getItem('low-res-mode') === '1') lowResMode.setAttribute('checked', 'true')
+
             lowResMode.addEventListener('click', toggleLowRes)
         });
 
@@ -60,6 +62,7 @@
 
             container.appendChild(textHolder);
             container.appendChild(byLine);
+
             return container;
         }
 
@@ -123,9 +126,11 @@
         function toggleLowRes() {
             const settingKey = 'low-res-mode'
             let enabled = parseInt(localStorage.getItem(settingKey) || 0)
+
             enabled ^= 1
 
             localStorage.setItem(settingKey, enabled)
+
             Array.from(__pendingComments.values()).forEach((giphy) => giphy.setDownsample(enabled))
         }
     </script>

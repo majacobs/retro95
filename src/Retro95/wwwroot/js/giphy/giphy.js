@@ -20,6 +20,7 @@ function Giphy(downsample = 0) {
 
   const getImage = () => {
     const { original, downsampled } = images[currentIndex]
+
     return useDownsampled ? downsampled : original
   }
 
@@ -37,10 +38,11 @@ function Giphy(downsample = 0) {
   }
 
   const previous = () => {
-    if (currentIndex > 0) currentIndex--
+    if (currentIndex === 0) return
+
+    currentIndex--
 
     rerender()
-    console.log(currentIndex)
   }
 
   const rerender = () => {
@@ -49,6 +51,7 @@ function Giphy(downsample = 0) {
 
   const submit = () => {
     const column = document.getElementById(id).parentElement.parentElement
+
     column.querySelector('textarea').value = getImage()
     column.querySelector('button[type="submit"]').click()
   }
@@ -101,6 +104,7 @@ function Giphy(downsample = 0) {
   // bitwise XOR
   this.setDownsample = (enabled) => {
     useDownsampled = enabled
+
     rerender()
   }
 }

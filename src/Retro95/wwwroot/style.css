@@ -64,11 +64,17 @@ h2 {
 }
 
 div.comment {
+    clear: both;
     margin-bottom: 1rem;
+}
+
+div.comment:first-of-type {
+    margin-top: 1rem;
 }
 
 div.comment>div.tools {
     float: right;
+    margin-left: 1rem;
 }
 
 span.author {

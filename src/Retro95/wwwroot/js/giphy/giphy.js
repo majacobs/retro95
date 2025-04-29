@@ -24,6 +24,13 @@ function Giphy(downsample = 0) {
     return useDownsampled ? downsampled : original
   }
 
+  const getTitle = () => {
+    const { title } = images[currentIndex]
+    return title
+  }
+
+  const buildImageTag = () => `<img src="${getImage()}" title="${getTitle()}" />`
+
   const mergeWithDefaults = (options = {}) => ({
     ...defaults,
     ...options
@@ -46,13 +53,13 @@ function Giphy(downsample = 0) {
   }
 
   const rerender = () => {
-    document.getElementById(`${id}-image`).innerHTML = getImage()
+    document.getElementById(`${id}-image`).innerHTML = buildImageTag()
   }
 
   const submit = () => {
     const column = document.getElementById(id).parentElement.parentElement
 
-    column.querySelector('textarea').value = getImage()
+    column.querySelector('textarea').value = JSON.stringify({ image: getImage(), title: getTitle() })
     column.querySelector('input[id$="-render-as"]').value = 'Giphy'
 
     // Remove comments are also submit buttons, we want the very last one which is our post comment
@@ -76,7 +83,7 @@ function Giphy(downsample = 0) {
 
     const content = document.createElement('div')
     content.setAttribute('id', `${id}-image`)
-    content.innerHTML = getImage()
+    content.innerHTML = buildImageTag()
 
     const buttonWrapper = document.createElement('div')
     const previousButton = document.createElement('button')

@@ -7,8 +7,9 @@ const search = async (options) => {
 
   return {
     images: data.map(({ images: { original, fixed_height_downsampled: wide, fixed_width_downsampled: tall }, title }) => ({
-      original: `<img src="${original.webp}" alt="${title}" />`,
-      downsampled: `<img src="${parseInt(wide.size) > parseInt(tall.size) ? wide.webp : tall.webp}" alt="${title}" />`
+      original: original.webp,
+      downsampled: parseInt(wide.size) > parseInt(tall.size) ? wide.webp : tall.webp,
+      title
     })),
     total_count
   }

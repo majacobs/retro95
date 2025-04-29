@@ -1,5 +1,13 @@
 @model Models.Db.Comment
 @using Retro95.Models
+@using System.Text.Json
+@using System.Text.Json.Nodes
+
+@{
+  var giphy = JsonSerializer.Deserialize<JsonObject>(Model.Text);
+  var giphyImage = (giphy?["image"] ?? string.Empty).GetValue<string>();
+  var giphyTitle = (giphy?["title"] ?? string.Empty).GetValue<string>();
+}
 
 <div class="comment">
   @if (@Model.UserId == Model.User?.Id)
@@ -12,7 +20,7 @@
     </div>
   }
   <div>
-    @Html.Raw(string.Join("<br/>", Model.Text.Split(Environment.NewLine).Select(Html.Encode)))
+    <img src="@giphyImage" alt="@giphyTitle" />
   </div>
   <span class="author">@Model.User?.Name</span>
 </div>

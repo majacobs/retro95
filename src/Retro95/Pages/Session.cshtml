@@ -3,6 +3,7 @@
 @using Microsoft.AspNetCore.Mvc.TagHelpers
 @using Models.Api
 @using Retro95.Models
+@using System.Web
 
 @{
     ViewData["Title"] = Model.Session.Name;
@@ -70,6 +71,7 @@
                 // Stop the button from submitting to perform async calls
                 evt.stopPropagation();
                 evt.preventDefault();
+                document.getElementById(`add-comment-${i}-text`).value = ''
 
                 const newCommentId = await actionHandler()
 
@@ -166,6 +168,8 @@
                         </div>
                     }
                     <div>@Html.Raw(string.Join("<br/>", comment.Text.Split(Environment.NewLine).Select(Html.Encode)))</div>
+                        @Html.Raw(HttpUtility.HtmlDecode(string.Join("<br/>",comment.Text.Split(Environment.NewLine).Select(Html.Encode))))
+                    </div>
                     <span class="author">@comment.User.Name</span>
                 </div>
             }

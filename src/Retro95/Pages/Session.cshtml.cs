@@ -94,6 +94,7 @@ public class SessionModel(RetroContext context) : BasePageModel(context)
             Session = session,
             Text = newComment.Text.Trim(),
             Type = newComment.Type,
+            RenderAs = newComment.RenderAs,
             User = user,
             CreatedAt = DateTime.UtcNow,
         });

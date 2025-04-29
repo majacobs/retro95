@@ -212,6 +212,8 @@
                     style="height: 5rem;" maxlength="1024"></textarea>
                     <div><!-- for alignment --></div>
                     <div>
+                        <input type="hidden" id="add-comment-@index-render-as" name="@nameof(Comment.RenderAs)"
+                            value="Text" />
                         <button type="submit" asp-page-handler="AddComment" class="wide" data-submit-type="comment"
                             data-comment-index="@index">Add</button>
                     </div>

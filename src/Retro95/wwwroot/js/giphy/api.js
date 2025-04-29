@@ -5,9 +5,9 @@ const search = async (options) => {
   const response = await fetch(`${hostUrl}?${new URLSearchParams({ ...options, api_key }).toString()}`)
   const { data } = await response.json()
 
-  return data.map(({ images: { original, fixed_height_downsampled: wide, fixed_width_downsampled: tall } }) => ({
-    original: original.webp,
-    downsampled: parseInt(wide.size) > parseInt(tall.size) ? wide.webp : tall.webp
+  return data.map(({ images: { original, fixed_height_downsampled: wide, fixed_width_downsampled: tall }, title }) => ({
+    original: `<img src="${original.webp}" alt="${title}" />`,
+    downsampled: `<img src="${parseInt(wide.size) > parseInt(tall.size) ? wide.webp : tall.webp}" alt="${title}" />`
   }))
 }
 

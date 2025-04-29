@@ -12,7 +12,10 @@
 {
     <script type="module">
         import { giphyCommand } from '/js/giphy/index.js'
+
         "use strict";
+        const __pendingComments = new Map()
+        const __pendingCommentsColumn = new Map()
 
         window.addEventListener("load", function () {
             let lastCheck = new Date();
@@ -55,13 +58,25 @@
             return container;
         }
 
-        function parseComment(evt) {
+        async function parseComment(evt) {
             const { target } = evt
 
-            const i = target.getAttribute('data-comment-index')
+            const i = parseInt(target.getAttribute('data-comment-index'))
             const text = document.querySelector(`#add-comment-${i}-text`)?.value || ''
 
-            parseAction(text)
+            const actionHandler = parseAction(text)
+
+            if (actionHandler) {
+                // Stop the button from submitting to perform async calls
+                evt.stopPropagation();
+                evt.preventDefault();
+
+                const newCommentId = await actionHandler()
+
+                __pendingCommentsColumn.set(newCommentId, i)
+
+                renderPendingComments(i)
+            }
         }
 
         function parseAction(text) {
@@ -69,10 +84,34 @@
 
             switch (command) {
                 case giphyCommand:
+                    return async () => {
+                        const giphy = new Giphy()
+
+                        await giphy.doSearch(query)
+
+                        return createPendingComment(giphy)
+                    }
                     break;
                 default:
+                    return null
                     break;
             }
+        }
+
+        function createPendingComment(hook) {
+            const uid = generateUUID()
+
+            __pendingComments.set(uid, hook)
+
+            return uid
+        }
+
+        function renderPendingComments(column) {
+            const needsRender = new Map([...__pendingCommentsColumn]
+                .filter(([commentId, commentColumn]) => commentColumn === column && !document.querySelector(`#pending-comment-${commentId}`)))
+                .keys()
+
+            Array.from(needsRender).forEach((commentId) => __pendingComments.get(commentId).render(`pending-comments-${column}`, commentId))
         }
     </script>
 }
@@ -130,6 +169,7 @@
                     <span class="author">@comment.User.Name</span>
                 </div>
             }
+            <section id="pending-comments-@index"></section>
             <hr>
             <div>
                 <form method="post" class="grid-labels">

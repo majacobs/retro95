@@ -53,7 +53,11 @@ function Giphy(downsample = 0) {
     const column = document.getElementById(id).parentElement.parentElement
 
     column.querySelector('textarea').value = getImage()
-    column.querySelector('button[type="submit"]').click()
+    column.querySelector('input[id$="-render-as"]').value = 'Giphy'
+
+    // Remove comments are also submit buttons, we want the very last one which is our post comment
+    const nodes = column.querySelectorAll('button[type="submit"]')
+    nodes[nodes.length - 1].click()
   }
 
   this.doSearch = async (q, options) => {

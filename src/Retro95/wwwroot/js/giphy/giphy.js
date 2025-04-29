@@ -2,7 +2,7 @@ import api from './api.js'
 
 const command = 'giphy'
 const defaults = {
-  limit: 5,
+  limit: 25,
   offset: 0,
   rating: 'pg-13',
   lang: 'en',

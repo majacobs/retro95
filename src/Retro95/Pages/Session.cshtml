@@ -29,6 +29,8 @@
                 .forEach((b) => {
                     b.addEventListener('click', parseComment)
                 })
+
+            document.getElementById('low-res-mode').addEventListener('click', toggleLowRes)
         });
 
         function showNewComments(lastCheck) {
@@ -115,6 +117,10 @@
 
             Array.from(needsRender).forEach((commentId) => __pendingComments.get(commentId).render(`pending-comments-${column}`, commentId))
         }
+
+        function toggleLowRes() {
+            Array.from(__pendingComments.values()).forEach((giphy) => giphy.toggleDownsample())
+        }
     </script>
 }
 
@@ -122,7 +128,7 @@
     <h1>@Model.Session.Name</h1>
     Created: <time
         datetime="@Model.Session.CreatedAt.ToString("u")">@Model.Session.CreatedAt.ToString("yyyy-MM-dd")</time>
-    <div style="display: grid; grid-template-columns: auto auto; column-gap: 0.5rem; max-width: 30rem;">
+    <div style="display: grid; grid-template-columns: auto auto auto; column-gap: 0.5rem; max-width: 30rem;">
         <fieldset>
             <legend>Rename</legend>
             <form method="post" class="grid-labels">
@@ -143,6 +149,13 @@
                 <div>
                     <button type="submit" asp-page-handler="AddColumn" class="wide">Add</button>
                 </div>
+            </form>
+        </fieldset>
+        <fieldset>
+            <legend>Graphics Settings</legend>
+            <form class="grid-labels">
+                <label for="low-res-mode" title="Only applies to new comments!">Low-Res</i></label>
+                <input type="checkbox" id="low-res-mode" />
             </form>
         </fieldset>
     </div>
@@ -167,7 +180,7 @@
                             </form>
                         </div>
                     }
-                    <div>@Html.Raw(string.Join("<br/>", comment.Text.Split(Environment.NewLine).Select(Html.Encode)))</div>
+                    <div>
                         @Html.Raw(HttpUtility.HtmlDecode(string.Join("<br/>",comment.Text.Split(Environment.NewLine).Select(Html.Encode))))
                     </div>
                     <span class="author">@comment.User.Name</span>

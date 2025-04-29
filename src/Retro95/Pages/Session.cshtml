@@ -10,55 +10,141 @@
 
 @section Scripts
 {
-<script type="text/javascript">
-    "use strict";
-    window.addEventListener("load", function() {
-        let lastCheck = new Date();
-        setInterval(function() {
-            showNewComments(lastCheck);
-            lastCheck = new Date();
-        }, 10 * 1000);
-    });
-    
-    function showNewComments(lastCheck) {
-        fetch(`@Url.Page("Session", "NewComments")&lastUpdate=${lastCheck.toISOString()}`)
-            .then(response => response.json())
-            .then(data => {
-                for (let comment of data) {
-                    const cleanType = comment.type.replaceAll("\\", "\\\\").replaceAll("\"", "\\\"");
-                    const separator = document.querySelector(`div[data-comment-type="${cleanType}"] > hr`);
-                    separator.parentNode.insertBefore(renderComment(comment), separator);
-                }
-            });
-    }
-    
-    function renderComment(data) {
-        const container = document.createElement("div");
-        container.classList.add("comment");
-        
-        const textHolder = document.createElement("div");
-        textHolder.textContent = data.text;
-        
-        const byLine = document.createElement("span");
-        byLine.classList.add("author");
-        byLine.textContent = data.authorName;
-        
-        container.appendChild(textHolder);
-        container.appendChild(byLine);
-        return container;
-    }
-</script>
+    <script type="module">
+        import { giphyCommand } from '/js/giphy/index.js'
+
+        "use strict";
+        const __pendingComments = new Map()
+        const __pendingCommentsColumn = new Map()
+
+        window.addEventListener("load", function () {
+            let lastCheck = new Date();
+            setInterval(function () {
+                showNewComments(lastCheck);
+                lastCheck = new Date();
+            }, 10 * 1000);
+
+            document.querySelectorAll('button[data-submit-type="comment"]')
+                .forEach((b) => {
+                    b.addEventListener('click', parseComment)
+                })
+
+            const lowResMode = document.getElementById('low-res-mode')
+
+            if (localStorage.getItem('low-res-mode') === '1') lowResMode.setAttribute('checked', 'true')
+
+            lowResMode.addEventListener('click', toggleLowRes)
+        });
+
+        function showNewComments(lastCheck) {
+            fetch(`@Url.Page("Session", "NewComments")&lastUpdate=${lastCheck.toISOString()}`)
+                .then(response => response.json())
+                .then(data => {
+                    for (let comment of data) {
+                        const cleanType = comment.type.replaceAll("\\", "\\\\").replaceAll("\"", "\\\"");
+                        const separator = document.querySelector(`div[data-comment-type="${cleanType}"] > hr`);
+                        separator.parentNode.insertBefore(renderComment(comment), separator);
+                    }
+                });
+        }
+
+        function renderComment(data) {
+            const container = document.createElement("div");
+            container.classList.add("comment");
+
+            const textHolder = document.createElement("div");
+            textHolder.textContent = data.text;
+
+            const byLine = document.createElement("span");
+            byLine.classList.add("author");
+            byLine.textContent = data.authorName;
+
+            container.appendChild(textHolder);
+            container.appendChild(byLine);
+
+            return container;
+        }
+
+        async function parseComment(evt) {
+            const { target } = evt
+
+            const i = parseInt(target.getAttribute('data-comment-index'))
+            const text = document.querySelector(`#add-comment-${i}-text`)?.value || ''
+
+            const actionHandler = parseAction(text)
+
+            if (actionHandler) {
+                // Stop the button from submitting to perform async calls
+                evt.stopPropagation();
+                evt.preventDefault();
+                document.getElementById(`add-comment-${i}-text`).value = ''
+
+                const newCommentId = await actionHandler()
+
+                __pendingCommentsColumn.set(newCommentId, i)
+
+                renderPendingComments(i)
+            }
+        }
+
+        function parseAction(text) {
+            const { command, query } = /\/(?<command>\w*)\s(?<query>(?:.*[\r\n]*)*)/gm.exec(text)?.groups || {}
+
+            switch (command) {
+                case giphyCommand:
+                    return async () => {
+                        const giphy = new Giphy(parseInt(localStorage.getItem('low-res-mode')))
+
+                        await giphy.doSearch(query)
+
+                        return createPendingComment(giphy)
+                    }
+                    break;
+                default:
+                    return null
+                    break;
+            }
+        }
+
+        function createPendingComment(hook) {
+            const uid = generateUUID()
+
+            __pendingComments.set(uid, hook)
+
+            return uid
+        }
+
+        function renderPendingComments(column) {
+            const needsRender = new Map([...__pendingCommentsColumn]
+                .filter(([commentId, commentColumn]) => commentColumn === column && !document.querySelector(`#pending-comment-${commentId}`)))
+                .keys()
+
+            Array.from(needsRender).forEach((commentId) => __pendingComments.get(commentId).render(`pending-comments-${column}`, commentId))
+        }
+
+        function toggleLowRes() {
+            const settingKey = 'low-res-mode'
+            let enabled = parseInt(localStorage.getItem(settingKey) || 0)
+
+            enabled ^= 1
+
+            localStorage.setItem(settingKey, enabled)
+
+            Array.from(__pendingComments.values()).forEach((giphy) => giphy.setDownsample(enabled))
+        }
+    </script>
 }
 
 <div class="window">
     <h1>@Model.Session.Name</h1>
-    Created: <time datetime="@Model.Session.CreatedAt.ToString("u")">@Model.Session.CreatedAt.ToString("yyyy-MM-dd")</time>
-    <div style="display: grid; grid-template-columns: auto auto; column-gap: 0.5rem; max-width: 30rem;">
+    Created: <time
+        datetime="@Model.Session.CreatedAt.ToString("u")">@Model.Session.CreatedAt.ToString("yyyy-MM-dd")</time>
+    <div style="display: grid; grid-template-columns: auto auto auto; column-gap: 0.5rem; max-width: 30rem;">
         <fieldset>
             <legend>Rename</legend>
             <form method="post" class="grid-labels">
                 <label for="new-name">New name</label>
-                <input type="text" id="new-name" name="name" required="required" pattern=".*\S.*" maxlength="128"/>
+                <input type="text" id="new-name" name="name" required="required" pattern=".*\S.*" maxlength="128" />
                 <div><!-- for alignment --></div>
                 <div>
                     <button type="submit" asp-page-handler="Rename" class="wide">Save</button>
@@ -69,54 +155,62 @@
             <legend>Add Column</legend>
             <form method="post" class="grid-labels">
                 <label for="new-column">Name</label>
-                <input type="text" id="new-column" name="name" required="required" pattern=".*\S.*" maxlength="128"/>
+                <input type="text" id="n`ew-column" name="name" required="required" pattern=".*\S.*" maxlength="128" />
                 <div><!-- for alignment --></div>
                 <div>
                     <button type="submit" asp-page-handler="AddColumn" class="wide">Add</button>
                 </div>
             </form>
         </fieldset>
+        <fieldset>
+            <legend>Graphics Settings</legend>
+            <form class="grid-labels">
+                <label for="low-res-mode" title="Only applies to new comments!">Low-Res</i></label>
+                <input type="checkbox" id="low-res-mode" />
+            </form>
+        </fieldset>
     </div>
 </div>
 <div class="board">
-    @foreach(var (type, index) in Model.Session.Types.Select((t, i) => (t, i)))
+    @foreach (var (type, index) in Model.Session.Types.Select((t, i) => (t, i)))
     {
         <div class="window column" data-comment-type="@type.Name">
             <h1>
                 @type.Name
                 <label for="display-delete-@index"><span class="faux-button title-bar-button x-button"></span></label>
             </h1>
-            @foreach(var comment in Model.Session.Comments.Where(c => c.Type == type.Name).OrderBy(c => c.CreatedAt))
+            @foreach (var comment in Model.Session.Comments.Where(c => c.Type == type.Name).OrderBy(c => c.CreatedAt))
             {
-                <div class="comment">
-                    @if (comment.UserId == Model.User?.Id)
-                    {
-                        <div class="tools">
-                            <form method="post">
-                                <button type="submit" asp-page-handler="RemoveComment" class="recycle"></button>
-                                <input type="hidden" name="commentId" value="@comment.Id"/>
-                            </form>
-                        </div>
-                    }
-                    <div>@Html.Raw(string.Join("<br/>", comment.Text.Split(Environment.NewLine).Select(Html.Encode)))</div>
-                    <span class="author">@comment.User.Name</span>
-                </div>
+                var partial = "~/Pages/CommentPartials/_RenderTextComment.cshtml";
+
+                @if (comment.RenderAs == "Giphy")
+                {
+                    partial = "~/Pages/CommentPartials/_RenderGiphyComment.cshtml";
+                }
+
+                @await Html.PartialAsync(partial, comment)
             }
+            <section id="pending-comments-@index"></section>
             <hr>
             <div>
                 <form method="post" class="grid-labels">
                     <label for="add-comment-@index-name">Name</label>
                     <div>
-                        <input id="add-comment-@index-name" type="text" required="required" name="@nameof(Comment.AuthorName)" value="@Model.User?.Name" maxlength="128"/>
+                        <input id="add-comment-@index-name" type="text" required="required"
+                            name="@nameof(Comment.AuthorName)" value="@Model.User?.Name" maxlength="128" />
                     </div>
                     <label for="add-comment-@index-text">Comment</label>
-                    <textarea id="add-comment-@index-text" name="@nameof(Comment.Text)" required="required" style="height: 5rem;" maxlength="1024"></textarea>
+                    <textarea id="add-comment-@index-text" name="@nameof(Comment.Text)" required="required"
+                    style="height: 5rem;" maxlength="1024"></textarea>
                     <div><!-- for alignment --></div>
                     <div>
-                        <button type="submit" asp-page-handler="AddComment" class="wide">Add</button>
+                        <input type="hidden" id="add-comment-@index-render-as" name="@nameof(Comment.RenderAs)"
+                            value="Text" />
+                        <button type="submit" asp-page-handler="AddComment" class="wide" data-submit-type="comment"
+                            data-comment-index="@index">Add</button>
                     </div>
-                    <input type="hidden" name="@nameof(Comment.SessionId)" value="@Model.Session.Id"/>
-                    <input type="hidden" name="@nameof(Comment.Type)" value="@type.Name"/>
+                    <input type="hidden" name="@nameof(Comment.SessionId)" value="@Model.Session.Id" />
+                    <input type="hidden" name="@nameof(Comment.Type)" value="@type.Name" />
                 </form>
             </div>
         </div>
@@ -125,7 +219,7 @@
 
 @foreach (var (type, index) in Model.Session.Types.Select((t, i) => (t, i)))
 {
-    <input type="checkbox" id="display-delete-@index" class="modal-display"/>
+    <input type="checkbox" id="display-delete-@index" class="modal-display" />
     <div class="modal">
         <div class="window">
             <h1>Delete Column</h1>
@@ -133,7 +227,7 @@
             <form method="post" style="text-align: center; margin-top: 1rem;">
                 <button type="submit" asp-page-handler="RemoveColumn" class="wide">Delete</button>
                 <label for="display-delete-@index"><span class="faux-button wide">Cancel</span></label>
-                <input type="hidden" name="name" value="@type.Name"/>
+                <input type="hidden" name="name" value="@type.Name" />
             </form>
         </div>
     </div>
@@ -144,7 +238,7 @@
     @await Html.PartialAsync("_TaskBar", new TaskBar
     {
         ApplicationName = Model.Session.Name ?? "<unnamed>",
-        Teams = Model.Teams,
-        SessionId = Model.Session.Id,
-    })
+Teams = Model.Teams,
+SessionId = Model.Session.Id,
+})
 }

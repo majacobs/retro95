@@ -15,13 +15,13 @@ public class Program
         builder.Services.AddRazorPages();
 
         var app = builder.Build();
-        
+
         using (var scope = app.Services.CreateScope())
         {
             var services = scope.ServiceProvider;
-        
+
             var context = services.GetRequiredService<RetroContext>();
-            await context.Database.EnsureCreatedAsync();
+            await context.Database.MigrateAsync();
         }
 
         if (!app.Environment.IsDevelopment())
@@ -34,7 +34,7 @@ public class Program
         app.MapStaticAssets();
         app.MapRazorPages()
             .WithStaticAssets();
-        
+
         await app.RunAsync();
     }
 }

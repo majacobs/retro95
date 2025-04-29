@@ -11,7 +11,7 @@ public class SessionModel(RetroContext context) : BasePageModel(context)
 
     public Session Session { get; set; } = null!;
     public new User? User { get; set; }
-    
+
     public async Task<IActionResult> OnGetAsync(Guid sessionId)
     {
         var session = await _context.Sessions
@@ -20,22 +20,22 @@ public class SessionModel(RetroContext context) : BasePageModel(context)
             .ThenInclude(c => c.User)
             .AsNoTracking()
             .FirstOrDefaultAsync(s => s.Id == sessionId);
-        
+
         if (session is null)
         {
             return NotFound();
         }
-        
+
         var userId = GetUserId();
-        
+
         Session = session;
         User = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
-        
+
         await PopulateStartMenu();
         await RecordTeamMembership(session.TeamId);
         return Page();
     }
-    
+
     public async Task<IActionResult> OnGetCsvAsync(Guid sessionId)
     {
         var session = await _context.Sessions
@@ -43,7 +43,7 @@ public class SessionModel(RetroContext context) : BasePageModel(context)
             .ThenInclude(c => c.User)
             .AsNoTracking()
             .FirstOrDefaultAsync(s => s.Id == sessionId);
-        
+
         if (session is null)
         {
             return NotFound();
@@ -63,7 +63,7 @@ public class SessionModel(RetroContext context) : BasePageModel(context)
 
         await writer.FlushAsync();
         stream.Seek(0, SeekOrigin.Begin);
-        
+
         return File(stream, "text/csv", $"{session.Name}.csv");
 
         static string CsvEncode(string s) => s.Replace("\"", "\"\"");
@@ -94,6 +94,7 @@ public class SessionModel(RetroContext context) : BasePageModel(context)
             Session = session,
             Text = newComment.Text.Trim(),
             Type = newComment.Type,
+            RenderAs = newComment.RenderAs,
             User = user,
             CreatedAt = DateTime.UtcNow,
         });
@@ -115,7 +116,7 @@ public class SessionModel(RetroContext context) : BasePageModel(context)
 
         session.Name = name;
         await _context.SaveChangesAsync();
-        
+
         return RedirectToPage("Session", new { sessionId = session.Id });
     }
 
@@ -130,7 +131,7 @@ public class SessionModel(RetroContext context) : BasePageModel(context)
 
         session.Types.Add(new CommentType { Name = name });
         await _context.SaveChangesAsync();
-        
+
         return RedirectToPage("Session", new { sessionId = session.Id });
     }
 
@@ -147,14 +148,14 @@ public class SessionModel(RetroContext context) : BasePageModel(context)
         {
             return BadRequest();
         }
-        
+
         session.Types.Remove(type);
         await _context.SaveChangesAsync();
 
         await _context.Comments
             .Where(c => c.SessionId == sessionId && c.Type == type.Name)
             .ExecuteDeleteAsync();
-        
+
         return RedirectToPage("Session", new { sessionId = session.Id });
     }
 
@@ -169,7 +170,7 @@ public class SessionModel(RetroContext context) : BasePageModel(context)
 
         _context.Comments.Remove(comment);
         await _context.SaveChangesAsync();
-        
+
         return RedirectToPage("Session", new { sessionId });
     }
 

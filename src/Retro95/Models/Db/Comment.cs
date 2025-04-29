@@ -6,6 +6,7 @@ public class Comment
     public Guid SessionId { get; set; }
     public required string Text { get; set; }
     public required string Type { get; set; }
+    public required string RenderAs { get; set; }
     public Guid UserId { get; set; }
     public DateTime CreatedAt { get; set; }
 

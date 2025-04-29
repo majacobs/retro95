@@ -14,7 +14,7 @@ public class RetroContext(DbContextOptions<RetroContext> options) : DbContext(op
         modelBuilder.Entity<User>(entity =>
         {
             entity.ToTable("User");
-            
+
             entity.HasKey(e => e.Id);
 
             entity.Property(e => e.Name).HasMaxLength(128);
@@ -23,17 +23,17 @@ public class RetroContext(DbContextOptions<RetroContext> options) : DbContext(op
                 .HasMany(e => e.Teams)
                 .WithMany(d => d.Users);
         });
-        
+
         modelBuilder.Entity<Team>(entity =>
         {
             entity.ToTable("Team");
-            
+
             entity.HasKey(e => e.Id);
-            
+
             entity.Property(e => e.Name).HasMaxLength(128);
-            
+
             entity.OwnsMany(e => e.DefaultTypes, builder => builder.ToJson());
-            
+
             entity
                 .HasMany(e => e.Sessions)
                 .WithOne(d => d.Team)
@@ -41,22 +41,22 @@ public class RetroContext(DbContextOptions<RetroContext> options) : DbContext(op
                 .HasPrincipalKey(e => e.Id)
                 .OnDelete(DeleteBehavior.Cascade);
         });
-        
+
         modelBuilder.Entity<Session>(entity =>
         {
             entity.ToTable("Session");
 
             entity.HasKey(e => e.Id);
-        
+
             entity.Property(e => e.Name).HasMaxLength(128);
             entity.Property(e => e.CreatedAt).ValueGeneratedOnAdd();
-            
+
             entity.OwnsMany(e => e.Types, builder =>
             {
                 builder.Property(e => e.Name).HasMaxLength(128);
                 builder.ToJson();
             });
-            
+
             entity
                 .HasMany(e => e.Comments)
                 .WithOne(d => d.Session)
@@ -64,17 +64,18 @@ public class RetroContext(DbContextOptions<RetroContext> options) : DbContext(op
                 .HasPrincipalKey(e => e.Id)
                 .OnDelete(DeleteBehavior.Cascade);
         });
-        
+
         modelBuilder.Entity<Comment>(entity =>
         {
             entity.ToTable("Comment");
 
             entity.HasKey(e => e.Id);
-        
+
             entity.Property(e => e.Text).HasMaxLength(1024);
             entity.Property(e => e.Type).HasMaxLength(128);
+            entity.Property(e => e.RenderAs).HasDefaultValue("Text");
             entity.Property(e => e.CreatedAt).ValueGeneratedOnAdd();
-            
+
             entity
                 .HasOne(e => e.User)
                 .WithMany(d => d.Comments)
@@ -82,7 +83,7 @@ public class RetroContext(DbContextOptions<RetroContext> options) : DbContext(op
                 .HasPrincipalKey(e => e.Id)
                 .OnDelete(DeleteBehavior.Cascade);
         });
-        
+
         base.OnModelCreating(modelBuilder);
     }
 }

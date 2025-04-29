@@ -1,48 +1,24 @@
 ﻿<!doctype html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8"/>
+    <meta charset="UTF-8" />
     <title>@ViewData["Title"] - Retro95</title>
     <link rel="icon" type="image/png" sizes="48x48" href="~/images/favicon.png">
-    <link rel="stylesheet" href="~/style.css"/>
-    <script type="text/javascript">
-        "use strict";
-        window.addEventListener("load", function() {
-            updateClock();
-            startClock();
-        });
-
-        function startClock() {
-            const now = new Date();
-            setTimeout(function() {
-                updateClock();
-                setInterval(() => updateClock(), 60 * 1000);
-            }, (60 - now.getSeconds()) * 1000);
-        }
-
-        function updateClock() {
-            const now = new Date();
-
-            let hour = now.getHours();
-            const meridiem = hour >= 12 ? "PM" : "AM";
-            hour = hour % 12 || 12;
-
-            let minute = now.getMinutes();
-            minute = minute < 10 ? `0${minute}` : minute.toString(10);
-
-            document.getElementById("clock").textContent = `${hour}:${minute} ${meridiem}`;
-        }
-    </script>
+    <link rel="stylesheet" href="~/style.css" />
+    <script src="~/js/main.js" type="module" defer></script>
     @await RenderSectionAsync("Scripts", required: false)
 </head>
+
 <body>
-<div class="wrapper">
-    <main>
-        @RenderBody()
-    </main>
-    <footer id="task-bar">
-        @await RenderSectionAsync("TaskBar", required: true)
-    </footer>
-</div>
+    <div class="wrapper">
+        <main>
+            @RenderBody()
+        </main>
+        <footer id="task-bar">
+            @await RenderSectionAsync("TaskBar", required: true)
+        </footer>
+    </div>
 </body>
+
 </html>

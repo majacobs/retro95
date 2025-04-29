@@ -30,7 +30,9 @@
                     b.addEventListener('click', parseComment)
                 })
 
-            document.getElementById('low-res-mode').addEventListener('click', toggleLowRes)
+            const lowResMode = document.getElementById('low-res-mode')
+            if (localStorage.getItem('low-res-mode') === '1') lowResMode.setAttribute('checked', 'true')
+            lowResMode.addEventListener('click', toggleLowRes)
         });
 
         function showNewComments(lastCheck) {
@@ -89,7 +91,7 @@
             switch (command) {
                 case giphyCommand:
                     return async () => {
-                        const giphy = new Giphy()
+                        const giphy = new Giphy(parseInt(localStorage.getItem('low-res-mode')))
 
                         await giphy.doSearch(query)
 
@@ -119,7 +121,12 @@
         }
 
         function toggleLowRes() {
-            Array.from(__pendingComments.values()).forEach((giphy) => giphy.toggleDownsample())
+            const settingKey = 'low-res-mode'
+            let enabled = parseInt(localStorage.getItem(settingKey) || 0)
+            enabled ^= 1
+
+            localStorage.setItem(settingKey, enabled)
+            Array.from(__pendingComments.values()).forEach((giphy) => giphy.setDownsample(enabled))
         }
     </script>
 }

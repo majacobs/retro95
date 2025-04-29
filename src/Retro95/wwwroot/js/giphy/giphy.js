@@ -10,11 +10,11 @@ const defaults = {
 }
 
 // constructor
-function Giphy() {
+function Giphy(downsample = 0) {
   let currentIndex = 0
   let total = 0
   let images = []
-  let useDownsampled = false
+  let useDownsampled = downsample
   let id = ''
   let query = ''
 
@@ -99,8 +99,8 @@ function Giphy() {
   }
 
   // bitwise XOR
-  this.toggleDownsample = () => {
-    useDownsampled ^= 1
+  this.setDownsample = (enabled) => {
+    useDownsampled = enabled
     rerender()
   }
 }

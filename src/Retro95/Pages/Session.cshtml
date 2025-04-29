@@ -88,14 +88,15 @@
         }
 
         function parseAction(text) {
-            const { command, query } = /\/(?<command>\w*)\s(?<query>(?:.*[\r\n]*)*)/gm.exec(text)?.groups || {}
+            const pattern = /(?<caption>(\w|\s|[!-\/:-@@[-`{-~])*)(?:.*[\r\n]*)\/(?<command>\w*)\s(?<query>(?:.*[\r\n]*)*)/gm
+            const { caption = '', command, query } = pattern.exec(text)?.groups || {}
 
             switch (command) {
                 case giphyCommand:
                     return async () => {
                         const giphy = new Giphy(parseInt(localStorage.getItem('low-res-mode')))
 
-                        await giphy.doSearch(query)
+                        await giphy.doSearch(query, caption)
 
                         return createPendingComment(giphy)
                     }
@@ -155,7 +156,7 @@
             <legend>Add Column</legend>
             <form method="post" class="grid-labels">
                 <label for="new-column">Name</label>
-                <input type="text" id="n`ew-column" name="name" required="required" pattern=".*\S.*" maxlength="128" />
+                <input type="text" id="new-column" name="name" required="required" pattern=".*\S.*" maxlength="128" />
                 <div><!-- for alignment --></div>
                 <div>
                     <button type="submit" asp-page-handler="AddColumn" class="wide">Add</button>

@@ -6,36 +6,47 @@
     --title-bar: #000080;
     --inactive-color: #666666;
 }
-body, input, button, textarea {
+
+body,
+input,
+button,
+textarea {
     font-family: sans-serif;
     font-size: 12pt;
     margin: 0;
 }
+
 body {
     background-color: #008080;
     font-family: sans-serif;
 }
+
 .wrapper {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
 }
+
 main {
     flex: 1;
     padding: 0.5rem 0.5rem 0 0.5rem;
 }
+
 div.window {
     padding: 10px;
     margin-bottom: 0.5rem;
 }
+
 div.board {
     display: flex;
     align-items: flex-start;
     gap: 0.5rem;
 }
+
 div.column {
     flex: 1 1 0;
 }
+
 h1 {
     background-color: var(--title-bar);
     color: #ffffff;
@@ -45,50 +56,68 @@ h1 {
     cursor: move;
     font-size: 12pt;
 }
+
 h2 {
     font-family: serif;
     font-size: 14pt;
     margin: 0.5rem 0;
 }
+
 div.comment {
+    clear: both;
     margin-bottom: 1rem;
 }
-div.comment > div.tools {
-    float: right;
+
+div.comment:first-of-type {
+    margin-top: 1rem;
 }
+
+div.comment>div.tools {
+    float: right;
+    margin-left: 1rem;
+}
+
 span.author {
     clear: left;
     font-style: italic;
 }
+
 span.author::before {
     content: '\2014';
 }
+
 hr {
     border: 2px solid var(--bevel-dark);
     border-right-color: var(--bevel-light);
     border-bottom-color: var(--bevel-light);
     margin: 1rem 0;
 }
+
 textarea {
     width: 100%;
     box-sizing: border-box;
 }
-textarea, input[type="text"] {
+
+textarea,
+input[type="text"] {
     background-color: #ffffff;
     border-width: var(--bevel-size);
     border-color: var(--bevel-dark) var(--bevel-light) var(--bevel-light) var(--bevel-dark);
 }
-button, .faux-button {
+
+button,
+.faux-button {
     padding-top: 0.1rem;
     padding-bottom: 0.1rem;
     text-align: center;
 }
+
 input[type="submit"],
 button,
 div.window,
 #task-bar,
 #start-menu ul,
-#start-menu > li:first-child,
+#start-menu>li:first-child,
 .task-bar-button,
 .faux-button {
     border-style: solid;
@@ -96,9 +125,10 @@ div.window,
     border-width: var(--bevel-size);
     border-color: var(--bevel-light) var(--bevel-dark) var(--bevel-dark) var(--bevel-light);
 }
+
 input[type="submit"]:active,
 button:active,
-#start-menu > li:first-child:hover,
+#start-menu>li:first-child:hover,
 .task-bar-button.active,
 #clock,
 .inset {
@@ -106,6 +136,7 @@ button:active,
     border-width: var(--bevel-size);
     border-color: var(--bevel-dark) var(--bevel-light) var(--bevel-light) var(--bevel-dark);
 }
+
 button.recycle {
     border-width: 0;
     width: 32px;
@@ -115,6 +146,7 @@ button.recycle {
     background-image: url("images/recycle.png");
     cursor: pointer;
 }
+
 #task-bar {
     left: 0;
     right: 0;
@@ -122,22 +154,27 @@ button.recycle {
     border-right-width: 0;
     padding: 0.2rem;
 }
-#task-bar > * {
+
+#task-bar>* {
     float: left;
 }
-#start-menu, #start-menu ul {
+
+#start-menu,
+#start-menu ul {
     list-style: none;
     padding: 0;
     margin: 0;
     cursor: default;
 }
+
 #start-menu ul {
     display: none;
     position: absolute;
     left: 100%;
     bottom: 0;
 }
-#start-menu > li:first-child {
+
+#start-menu>li:first-child {
     width: 2.5rem;
     background-position: .5rem center;
     background-repeat: no-repeat;
@@ -145,10 +182,12 @@ button.recycle {
     font-weight: bold;
     padding-left: 2rem;
 }
-#start-menu > li > ul {
+
+#start-menu>li>ul {
     left: 0;
     bottom: 100%;
 }
+
 #start-menu li {
     width: 10rem;
     padding: 0.2rem 0.5rem;
@@ -156,29 +195,36 @@ button.recycle {
     color: #000000;
     font-weight: normal;
 }
+
 #start-menu li.inactive {
     text-shadow: #ffffff 1px 1px 1px;
     color: var(--inactive-color);
 }
+
 #start-menu li li:not(.inactive):hover {
     background-color: var(--title-bar);
     color: #ffffff;
 }
-#start-menu li:hover > ul {
+
+#start-menu li:hover>ul {
     display: block;
 }
+
 #start-menu li li:has(ul)::after {
     content: '\25B8';
     float: right;
 }
+
 #start-menu a {
     color: #000000;
     text-decoration: none;
     display: block;
 }
-#start-menu li:hover > a {
+
+#start-menu li:hover>a {
     color: #ffffff;
 }
+
 #start-menu li.divider {
     margin: 0.5rem 0.2rem;
     padding: 0;
@@ -186,37 +232,45 @@ button.recycle {
     border-width: var(--bevel-size);
     border-color: var(--bevel-dark) var(--bevel-light) var(--bevel-light) var(--bevel-dark);
 }
+
 .task-bar-button {
     margin-left: 0.2rem;
     width: 12rem;
     padding: 0.2rem;
     font-weight: bold;
 }
+
 #clock {
     float: right;
     font-weight: normal;
     margin-left: 0.2rem;
     padding: 0.2rem 1rem;
 }
+
 .grid-labels {
     display: grid;
     grid-template-columns: 8rem auto;
     column-gap: 0.5rem;
     row-gap: 0.5rem;
 }
-button.wide, .faux-button.wide {
+
+button.wide,
+.faux-button.wide {
     min-width: 8rem;
 }
+
 ul.tree {
     list-style: none;
     margin: 0 0.5rem;
     padding: 0;
 }
-ul.tree > li {
+
+ul.tree>li {
     position: relative;
     padding-left: 0.75rem;
 }
-ul.tree > li::before {
+
+ul.tree>li::before {
     content: " ";
     position: absolute;
     background: repeating-linear-gradient(0deg, #ffffff, #ffffff 1px, #000000 1px, #000000 2px);
@@ -225,10 +279,12 @@ ul.tree > li::before {
     top: 0;
     left: 0;
 }
-ul.tree > li:last-child::before {
+
+ul.tree>li:last-child::before {
     height: 50%;
 }
-ul.tree > li::after {
+
+ul.tree>li::after {
     content: " ";
     position: absolute;
     background: repeating-linear-gradient(90deg, #ffffff, #ffffff 1px, #000000 1px, #000000 2px);
@@ -237,27 +293,32 @@ ul.tree > li::after {
     top: 50%;
     left: 0;
 }
+
 .inset {
     background-color: #ffffff;
     padding: 0.5rem;
     max-height: 20rem;
     overflow-y: scroll;
 }
+
 a.file {
     background-image: url("images/file.png");
     background-repeat: no-repeat;
     background-position: left center;
     padding-left: 18px;
 }
+
 span.folder {
     background-image: url("images/folder.png");
     background-repeat: no-repeat;
     background-position: left center;
     padding-left: 18px;
 }
+
 form.title-bar {
     display: inline;
 }
+
 .title-bar-button {
     height: 20px;
     width: 20px;
@@ -265,34 +326,43 @@ form.title-bar {
     float: right;
     padding: 0;
 }
+
 .x-button {
     background-image: url("images/x.png");
     background-repeat: no-repeat;
     background-position: center;
 }
+
 .icon {
     background-repeat: no-repeat;
     background-position: left center;
     padding-left: 1.5rem;
 }
+
 .icon.icon-network {
     background-image: url("images/network.png");
 }
+
 .icon.icon-edit {
     background-image: url("images/edit.png");
 }
+
 .icon.icon-folder {
     background-image: url("images/folder.png");
 }
+
 .icon.icon-printer {
     background-image: url("images/printer.png");
 }
+
 .icon.icon-installer {
     background-image: url("images/installer.png");
 }
+
 .faux-button {
     display: inline-block;
 }
+
 div.modal {
     display: none;
     background: rgba(0, 0, 0, 0.5);
@@ -302,16 +372,67 @@ div.modal {
     width: 100%;
     height: 100%;
 }
-div.modal > div.window {
+
+div.modal>div.window {
     position: relative;
     width: 30rem;
     top: 10rem;
     left: 50%;
     margin-left: -15rem;
 }
+
 input[type="checkbox"].modal-display {
     display: none;
 }
-input[type="checkbox"].modal-display:checked + div.modal {
+
+input[type="checkbox"].modal-display:checked+div.modal {
     display: block;
-} 
+}
+
+.giphy-caption {
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: flex-start;
+    ;
+}
+
+.giphy-caption-shadow {
+    filter: drop-shadow(4px 4px 4px rgba(0, 0, 0, 0.25));
+}
+
+.giphy-caption-text {
+    display: inline-block;
+    position: relative;
+    background-color: #000000;
+    clip-path: polygon(0% 0%,
+            100% 0%,
+            100% calc(100% - 1.5rem),
+            3rem calc(100% - 1.5rem),
+            2rem 100%,
+            2rem calc(100% - 1.5rem),
+            0% calc(100% - 1.5rem));
+    padding: .5rem .5rem 2rem .5rem;
+}
+
+.giphy-caption-text::before {
+    content: '';
+    position: absolute;
+    width: calc(100% - 2px);
+    height: calc(100% - 2px);
+    top: 1px;
+    left: 1px;
+    background-color: #fdffc8;
+    clip-path: polygon(0% 0%,
+            100% 0%,
+            100% calc(100% - 1.5rem),
+            calc(3rem - 1px) calc(100% - 1.5rem),
+            2rem calc(100% - 1px),
+            2rem calc(100% - 1.5rem),
+            0% calc(100% - 1.5rem));
+    z-index: -1;
+}
+
+.giphy-clippy {
+    display: inline-block;
+    width: 100px;
+}

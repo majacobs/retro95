@@ -1,6 +1,5 @@
 @page "/session/{sessionId:guid}"
 @model Retro95.Pages.SessionModel
-@using Microsoft.AspNetCore.Mvc.TagHelpers
 @using Models.Api
 @using Retro95.Models
 
@@ -52,14 +51,33 @@
             const container = document.createElement("div");
             container.classList.add("comment");
 
-            const textHolder = document.createElement("div");
-            textHolder.textContent = data.text;
+            const contentHolder = document.createElement("div");
+            container.appendChild(contentHolder);
+            try {
+                const jsonData = JSON.parse(data.text);
+                if (jsonData.caption !== "") {
+                    const caption = document.createElement("div");
+                    contentHolder.appendChild(caption);
+                    
+                    const captionShadow = document.createElement("span");
+                    caption.appendChild(captionShadow);
+                    
+                    const captionText = document.createElement("span");
+                    captionText.textContent = jsonData.caption;
+                    captionShadow.appendChild(captionShadow);
+                }
+
+                const image = document.createElement("img");
+                image.setAttribute("src", jsonData.image);
+                image.setAttribute("title", jsonData.title);
+                contentHolder.appendChild(image);
+            } catch {
+                contentHolder.textContent = data.text;
+            }
 
             const byLine = document.createElement("span");
             byLine.classList.add("author");
             byLine.textContent = data.authorName;
-
-            container.appendChild(textHolder);
             container.appendChild(byLine);
 
             return container;
@@ -100,10 +118,8 @@
 
                         return createPendingComment(giphy)
                     }
-                    break;
                 default:
                     return null
-                    break;
             }
         }
 
@@ -189,7 +205,7 @@
                     partial = "~/Pages/CommentPartials/_RenderGiphyComment.cshtml";
                 }
 
-                @await Html.PartialAsync(partial, comment)
+                @await Html.PartialAsync(partial, comment, new ViewDataDictionary(ViewData) { ["UserId"] = Model.User?.Id })
             }
             <section id="pending-comments-@index"></section>
             <hr>
@@ -239,7 +255,7 @@
     @await Html.PartialAsync("_TaskBar", new TaskBar
     {
         ApplicationName = Model.Session.Name ?? "<unnamed>",
-Teams = Model.Teams,
-SessionId = Model.Session.Id,
-})
+        Teams = Model.Teams,
+        SessionId = Model.Session.Id,
+    })
 }

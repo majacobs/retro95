@@ -94,12 +94,12 @@ function Giphy(downsample = 0) {
     const nextButton = document.createElement('button')
     const submitButton = document.createElement('button')
 
-    previousButton.setAttribute('class', 'wide')
-    previousButton.innerText = 'Previous'
+    previousButton.setAttribute('class', 'medium')
+    previousButton.innerText = '\u23EA\uFE0E'
     previousButton.addEventListener('click', previous)
-
-    nextButton.setAttribute('class', 'wide')
-    nextButton.innerText = 'Next'
+    
+    nextButton.setAttribute('class', 'medium')
+    nextButton.innerText = '\u23E9\uFE0E'
     nextButton.addEventListener('click', next)
 
     submitButton.setAttribute('class', 'wide')
@@ -110,8 +110,8 @@ function Giphy(downsample = 0) {
     buttonWrapper.appendChild(nextButton)
     buttonWrapper.appendChild(submitButton)
 
-    wrapper.appendChild(content)
     wrapper.appendChild(buttonWrapper)
+    wrapper.appendChild(content)
 
     document.getElementById(mountId).appendChild(wrapper)
   }

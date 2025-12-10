@@ -1,18 +1,21 @@
 @model Models.Db.Comment
-@using Retro95.Models
+
+@{
+    var userId = ViewData["UserId"] as Guid?;
+}
 
 <div class="comment">
-  @if (@Model.UserId == Model.User?.Id)
-  {
-    <div class="tools">
-      <form method="post">
-        <button type="submit" asp-page-handler="RemoveComment" class="recycle"></button>
-        <input type="hidden" name="commentId" value="@Model.Id" />
-      </form>
+    @if (Model.UserId == userId)
+    {
+        <div class="tools">
+            <form method="post">
+                <button type="submit" asp-page-handler="RemoveComment" class="recycle"></button>
+                <input type="hidden" name="commentId" value="@Model.Id"/>
+            </form>
+        </div>
+    }
+    <div>
+        @Html.Raw(string.Join("<br/>", Model.Text.Split(Environment.NewLine).Select(Html.Encode)))
     </div>
-  }
-  <div>
-    @Html.Raw(string.Join("<br/>", Model.Text.Split(Environment.NewLine).Select(Html.Encode)))
-  </div>
-  <span class="author">@Model.User?.Name</span>
+    <span class="author">@Model.User.Name</span>
 </div>

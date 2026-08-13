@@ -39,10 +39,20 @@
             fetch(`@Url.Page("Session", "NewComments")&lastUpdate=${lastCheck.toISOString()}`)
                 .then(response => response.json())
                 .then(data => {
-                    for (let comment of data) {
+                    for (let comment of data.comments) {
                         const cleanType = comment.type.replaceAll("\\", "\\\\").replaceAll("\"", "\\\"");
                         const separator = document.querySelector(`div[data-comment-type="${cleanType}"] > hr`);
                         separator.parentNode.insertBefore(renderComment(comment), separator);
+                    }
+                    
+                    for (let reaction of data.reactions) {
+                        const form = document.getElementById(`reactions-${reaction.commentId}`);
+                        const button = form.querySelector(`button[value="${reaction.image}"]`);
+                        if (button === null) {
+                            form.appendChild(renderReaction(reaction));
+                        } else {
+                            updateReaction(button, reaction);
+                        }
                     }
                 });
         }
@@ -148,6 +158,33 @@
             localStorage.setItem(settingKey, enabled)
 
             Array.from(__pendingComments.values()).forEach((giphy) => giphy.setDownsample(enabled))
+        }
+        
+        function renderReaction(reaction) {
+            const button = document.createElement("button");
+            button.setAttribute("type", "submit");
+            button.setAttribute("name", "reaction");
+            button.setAttribute("value", reaction.image);
+            button.setAttribute("title", reaction.authors.join(", "));
+            button.setAttribute("formAction", "@Url.Page("Session", "ToggleReaction", new { sessionId = Model.Session.Id })");
+
+            updateReaction(button, reaction);
+            
+            return button;
+        }
+        
+        function updateReaction(button, reaction) {
+            while (button.firstChild !== null) {
+                button.removeChild(button.firstChild);
+            }
+            
+            const img = document.createElement("img");
+            img.setAttribute("src", `@Url.Content("~/images/reactions/")${reaction.image}`);
+
+            const count = document.createTextNode(reaction.authors.length);
+
+            button.appendChild(img);
+            button.appendChild(count);
         }
     </script>
 }

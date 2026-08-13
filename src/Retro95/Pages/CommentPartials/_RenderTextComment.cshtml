@@ -18,4 +18,5 @@
         @Html.Raw(string.Join("<br/>", Model.Text.Split(Environment.NewLine).Select(Html.Encode)))
     </div>
     <span class="author">@Model.User.Name</span>
+    @await Html.PartialAsync("CommentPartials/_Reactions")
 </div>

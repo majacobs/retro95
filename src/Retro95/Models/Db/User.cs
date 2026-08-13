@@ -7,4 +7,5 @@ public class User
 
     public virtual ICollection<Team> Teams { get; set; } = [];
     public virtual ICollection<Comment> Comments { get; set; } = [];
+    public virtual ICollection<CommentReaction> CommentReactions { get; set; } = [];
 }

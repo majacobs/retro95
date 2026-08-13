@@ -32,4 +32,5 @@
         <img src="@giphy.Image" alt="@giphy.Title" />
     </div>
     <span class="author">@Model.User.Name</span>
+    @await Html.PartialAsync("CommentPartials/_Reactions")
 </div>

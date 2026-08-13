@@ -8,6 +8,7 @@ public class RetroContext(DbContextOptions<RetroContext> options) : DbContext(op
     public DbSet<Team> Teams { get; set; }
     public DbSet<Session> Sessions { get; set; }
     public DbSet<Comment> Comments { get; set; }
+    public DbSet<CommentReaction> CommentReactions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -79,6 +80,30 @@ public class RetroContext(DbContextOptions<RetroContext> options) : DbContext(op
             entity
                 .HasOne(e => e.User)
                 .WithMany(d => d.Comments)
+                .HasForeignKey(d => d.UserId)
+                .HasPrincipalKey(e => e.Id)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<CommentReaction>(entity =>
+        {
+            entity.ToTable("CommentReaction");
+
+            entity.HasKey(e => new { e.CommentId, e.UserId, e.Image });
+
+            entity.Property(e => e.Image).HasMaxLength(100);
+            entity.Property(e => e.CreatedAt).ValueGeneratedOnAdd();
+
+            entity
+                .HasOne(e => e.Comment)
+                .WithMany(d => d.Reactions)
+                .HasForeignKey(d => d.CommentId)
+                .HasPrincipalKey(e => e.Id)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity
+                .HasOne(e => e.User)
+                .WithMany(d => d.CommentReactions)
                 .HasForeignKey(d => d.UserId)
                 .HasPrincipalKey(e => e.Id)
                 .OnDelete(DeleteBehavior.Cascade);

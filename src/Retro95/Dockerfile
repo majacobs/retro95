@@ -3,18 +3,19 @@ WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
 
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+ARG TARGETARCH
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Retro95.csproj", "./"]
-RUN dotnet restore "Retro95.csproj"
+RUN dotnet restore "Retro95.csproj" -a $TARGETARCH
 COPY . .
 WORKDIR "/src/"
-RUN dotnet build "Retro95.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "Retro95.csproj" -c $BUILD_CONFIGURATION -o /app/build -a $TARGETARCH
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "Retro95.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "Retro95.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false -a $TARGETARCH
 
 FROM base AS final
 WORKDIR /app

@@ -12,4 +12,5 @@ public class Comment
 
     public virtual Session Session { get; set; } = null!;
     public virtual User User { get; set; } = null!;
+    public virtual List<CommentReaction> Reactions { get; set; } = [];
 }

@@ -58,6 +58,29 @@ namespace Retro95.Migrations
                     b.ToTable("Comment", (string)null);
                 });
 
+            modelBuilder.Entity("Retro95.Models.Db.CommentReaction", b =>
+                {
+                    b.Property<Guid>("CommentId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Image")
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("CommentId", "UserId", "Image");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("CommentReaction", (string)null);
+                });
+
             modelBuilder.Entity("Retro95.Models.Db.Session", b =>
                 {
                     b.Property<Guid>("Id")
@@ -148,6 +171,25 @@ namespace Retro95.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Retro95.Models.Db.CommentReaction", b =>
+                {
+                    b.HasOne("Retro95.Models.Db.Comment", "Comment")
+                        .WithMany("Reactions")
+                        .HasForeignKey("CommentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Retro95.Models.Db.User", "User")
+                        .WithMany("CommentReactions")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Comment");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Retro95.Models.Db.Session", b =>
                 {
                     b.HasOne("Retro95.Models.Db.Team", "Team")
@@ -228,6 +270,11 @@ namespace Retro95.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Retro95.Models.Db.Comment", b =>
+                {
+                    b.Navigation("Reactions");
+                });
+
             modelBuilder.Entity("Retro95.Models.Db.Session", b =>
                 {
                     b.Navigation("Comments");
@@ -240,6 +287,8 @@ namespace Retro95.Migrations
 
             modelBuilder.Entity("Retro95.Models.Db.User", b =>
                 {
+                    b.Navigation("CommentReactions");
+
                     b.Navigation("Comments");
                 });
 #pragma warning restore 612, 618

@@ -32,7 +32,8 @@ main {
     padding: 0.5rem 0.5rem 0 0.5rem;
 }
 
-div.window {
+div.window,
+dialog.window {
     padding: 10px;
     margin-bottom: 0.5rem;
 }
@@ -120,6 +121,7 @@ button,
 input[type="submit"],
 button,
 div.window,
+dialog.window,
 #task-bar,
 #start-menu ul,
 #start-menu>li:first-child,
@@ -445,4 +447,25 @@ input[type="checkbox"].modal-display:checked+div.modal {
 .giphy-clippy {
     display: inline-block;
     width: 100px;
+}
+
+form.reactions > button > img {
+    vertical-align: middle;
+}
+
+dialog.reaction-modal {
+    margin-top: 200px;
+}
+
+dialog.reaction-modal > form {
+    display: grid;
+    grid: auto-flow / repeat(10, 32px);
+    column-gap: 2px;
+    max-height: 256px;
+    overflow-y: scroll;
+}
+dialog.reaction-modal > form > button {
+    border-width: 0;
+    background-color: transparent;
+    padding: 0;
 }

@@ -1,0 +1,31 @@
+@using Retro95.Models
+@model Models.Db.Comment
+
+<button command="show-modal" commandfor="reaction-modal-@Model.Id">!</button>
+
+<form method="post" id="reactions-@Model.Id" class="reactions">
+    <input type="hidden" name="commentId" value="@Model.Id"/>
+    @foreach (var grouping in Model.Reactions.GroupBy(r => r.Image).OrderBy(g => g.Min(r => r.CreatedAt)))
+    {
+        <button type="submit" asp-page-handler="ToggleReaction" name="reaction" value="@grouping.Key" title="@string.Join(", ", grouping.Select(r => r.User.Name))">
+            <img src="~/images/reactions/@grouping.Key" alt="@grouping.Key reaction" />
+            @grouping.Count()
+        </button>
+    }
+</form>
+
+<dialog id="reaction-modal-@Model.Id" class="window reaction-modal" closedby="any">
+    <h1>
+        Reaction
+        <button commandfor="reaction-modal-@Model.Id" command="close" class="title-bar-button x-button"></button>
+    </h1>
+    <form method="post">
+        @foreach (var imageName in Reaction.All)
+        {
+            <button type="submit" asp-page-handler="AddReaction" name="reaction" value="@imageName">
+                <img src="~/images/reactions/@imageName" alt="@imageName reaction"/>
+            </button>
+        }
+        <input type="hidden" name="commentId" value="@Model.Id"/>
+    </form>
+</dialog>

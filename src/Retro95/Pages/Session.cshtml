@@ -1,5 +1,6 @@
 @page "/session/{sessionId:guid}"
 @model Retro95.Pages.SessionModel
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
 @using Models.Api
 @using Retro95.Models
 
@@ -15,6 +16,7 @@
         "use strict";
         const __pendingComments = new Map()
         const __pendingCommentsColumn = new Map()
+        const ALL_REACTIONS = @Json.Serialize(Reaction.All);
 
         window.addEventListener("load", function () {
             let lastCheck = new Date();
@@ -57,40 +59,83 @@
                 });
         }
 
-        function renderComment(data) {
-            const container = document.createElement("div");
-            container.classList.add("comment");
+        function el(tag, attr, children) {
+            const element = document.createElement(tag);
+            
+            for (const attrName in attr) {
+                element.setAttribute(attrName, attr[attrName]);
+            }
+            
+            for (const child of children ?? []) {
+                if (child instanceof Element) {
+                    element.appendChild(child);
+                } else if (typeof child === "string") {
+                    element.appendChild(document.createTextNode(child));
+                }
+            }
+            
+            return element;
+        }
 
-            const contentHolder = document.createElement("div");
-            container.appendChild(contentHolder);
+        function renderComment(data) {
+            let content;
             try {
                 const jsonData = JSON.parse(data.text);
+                
+                let caption = [];
                 if (jsonData.caption !== "") {
-                    const caption = document.createElement("div");
-                    contentHolder.appendChild(caption);
-                    
-                    const captionShadow = document.createElement("span");
-                    caption.appendChild(captionShadow);
-                    
-                    const captionText = document.createElement("span");
-                    captionText.textContent = jsonData.caption;
-                    captionShadow.appendChild(captionShadow);
+                    caption = [
+                        el("div", {"class": "giphy-caption"}, [
+                            el("span", {"class": "giphy-caption-shadow"}, [
+                                el("span", {"class": "giphy-caption-text"}, [
+                                    jsonData.caption
+                                ])
+                            ]),
+                            el("img", {"class": "giphy-clippy", "src": "@Url.Content("~/images/microsoft-clippy.svg")", "alt": "A cartoon character named Clippy who is a paperclip with eyes."})
+                        ])
+                    ];
                 }
 
-                const image = document.createElement("img");
-                image.setAttribute("src", jsonData.image);
-                image.setAttribute("title", jsonData.title);
-                contentHolder.appendChild(image);
+                content = el("div", {}, [
+                    ...caption,
+                    el("img", {"src": jsonData.image, "title": jsonData.title})
+                ]);
             } catch {
-                contentHolder.textContent = data.text;
+                content = el("div", {}, [data.text]);
             }
-
-            const byLine = document.createElement("span");
-            byLine.classList.add("author");
-            byLine.textContent = data.authorName;
-            container.appendChild(byLine);
-
-            return container;
+            
+            const reactionOptions = ALL_REACTIONS.map(r => el("button", {
+                    "type": "submit",
+                    "formAction": "@Url.Page("Session", "AddReaction", new { sessionId = Model.Session.Id })",
+                    "name": "reaction",
+                    "value": r
+                }, [
+                    el("img", {"src": `@Url.Content("~/images/reactions/")${r}`, "alt": `${r} reaction`})
+                ])
+            );
+            
+            return el("div", {"class": "comment"}, [
+                el("div", {}, [
+                    content,
+                    el("span", {"class": "author"}, [data.authorName]),
+                    el("button", {"command": "show-modal", "commandfor": `reaction-modal-${data.id}`}, ["!"]),
+                    el("form", {"method": "post", "id": `reactions-${data.id}`, "class": "reactions"}, [
+                        el("input", {"type": "hidden", "name": "commentId", "value": data.id}),
+                        el("input", {"type": "hidden", "name": "__RequestVerificationToken", "value": "@Antiforgery.GetAndStoreTokens(HttpContext).RequestToken"})
+                    ]),
+                    el("dialog", {"id": `reaction-modal-${data.id}`, "class": "window reaction-modal", "closedby": "any"}, [
+                        el("h1", {}, [
+                            "Reaction",
+                            el("button", {"commandfor": `reaction-modal-${data.id}`, "command": "close", "class": "title-bar-button x-button"})
+                        ]),
+                        el("form", {"method": "post"}, [
+                            el("input", {"type": "hidden", "name": "commentId", "value": data.id}),
+                            el("input", {"type": "hidden", "name": "__RequestVerificationToken", "value": "@Antiforgery.GetAndStoreTokens(HttpContext).RequestToken"}),
+                            ...reactionOptions
+                        ])
+                    ])
+                ])
+            ]);
         }
 
         async function parseComment(evt) {
@@ -161,12 +206,13 @@
         }
         
         function renderReaction(reaction) {
-            const button = document.createElement("button");
-            button.setAttribute("type", "submit");
-            button.setAttribute("name", "reaction");
-            button.setAttribute("value", reaction.image);
-            button.setAttribute("title", reaction.authors.join(", "));
-            button.setAttribute("formAction", "@Url.Page("Session", "ToggleReaction", new { sessionId = Model.Session.Id })");
+            const button = el("button", {
+                "type": "submit",
+                "name": "reaction",
+                "value": reaction.image,
+                "title": reaction.authors.join(", "),
+                "formAction": "@Url.Page("Session", "ToggleReaction", new { sessionId = Model.Session.Id })"
+            });
 
             updateReaction(button, reaction);
             
